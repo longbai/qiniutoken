@@ -35,21 +35,29 @@ func decodeUpToken(token string) (policy rs.PutPolicy, err error) {
 func encodeUpToken(args []string, ak, sk string) (token string, err error) {
 	var policy rs.PutPolicy
 	for _, v := range args {
-		arg := strings.Split(v, "=")
+		arg := strings.SplitN(v, "=", 2)
 		if len(arg) != 2 {
 			err = errors.New("invalid args " + v)
 			return
 		}
 		switch arg[0] {
-		case "Scope":
+		case "scope":
 			policy.Scope = arg[1]
-		case "Expires":
+		case "expires":
 			data, err1 := strconv.ParseUint(arg[1], 10, 32)
 			if err1 != nil {
 				err = err1
 				return
 			}
 			policy.Expires = uint32(data)
+		case "callbackUrl":
+			policy.CallbackUrl = arg[1]
+		case "callbackBody":
+			policy.CallbackBody = arg[1]
+		case "returnUrl":
+			policy.ReturnUrl = arg[1]
+		case "returnBody":
+			policy.ReturnBody = arg[1]
 		}
 	}
 	mac := digest.Mac{ak, []byte(sk)}
